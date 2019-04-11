@@ -1,13 +1,29 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
+	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
+type Config struct {
+	TelegramBotToken string
+	BotanApiToken    string
+}
+
 func main() {
-	bot, err := tgbotapi.NewBotAPI("MyAwesomeBotToken")
+
+	file, _ := os.Open("config.json")
+	decoder := json.NewDecoder(file)
+	configuration := Config{}
+	err := decoder.Decode(&configuration)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bot, err := tgbotapi.NewBotAPI(configuration.TelegramBotToken)
 	if err != nil {
 		log.Panic(err)
 	}
