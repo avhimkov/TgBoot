@@ -13,6 +13,19 @@ type Config struct {
 	BotanApiToken    string
 }
 
+var numericKeyboard = tgbotapi.NewReplyKeyboard(
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("1"),
+		tgbotapi.NewKeyboardButton("2"),
+		tgbotapi.NewKeyboardButton("3"),
+	),
+	tgbotapi.NewKeyboardButtonRow(
+		tgbotapi.NewKeyboardButton("4"),
+		tgbotapi.NewKeyboardButton("5"),
+		tgbotapi.NewKeyboardButton("6"),
+	),
+)
+
 func main() {
 
 	file, _ := os.Open("config.json")
@@ -22,6 +35,10 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	// socks5 := os.Getenv("SOCKS5_PROXY")
+
+	// export SOCKS5_PROXY="socks5://url:443"
 
 	bot, err := tgbotapi.NewBotAPI(configuration.TelegramBotToken)
 	if err != nil {
@@ -45,8 +62,34 @@ func main() {
 		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
 
 		msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-		msg.ReplyToMessageID = update.Message.MessageID
+
+		switch update.Message.Text {
+		case "open":
+			msg.ReplyMarkup = numericKeyboard
+		case "close":
+			msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+		}
 
 		bot.Send(msg)
+
+		// if update.Message.IsCommand() {
+		// 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+		// 	switch update.Message.Command() {
+		// 	case "help":
+		// 		msg.Text = "type /sayhi or /status."
+		// 	case "sayhi":
+		// 		msg.Text = "Hi :)"
+		// 	case "status":
+		// 		msg.Text = "I'm ok."
+		// 	default:
+		// 		msg.Text = "I don't know that command"
+		// 	}
+		// 	bot.Send(msg)
+		// }
+
+		// msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+		// msg.ReplyToMessageID = update.Message.MessageID
+
+		// bot.Send(msg)
 	}
 }
