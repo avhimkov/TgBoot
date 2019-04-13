@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	TelegramBotToken string
-	BotanApiToken    string
+	// BotanApiToken    string
 }
 
 var numericKeyboard = tgbotapi.NewReplyKeyboard(

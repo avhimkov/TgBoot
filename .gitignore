@@ -16,3 +16,4 @@ vendor/
 /vendor
 
 config.json
+debug
