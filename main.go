@@ -50,8 +50,8 @@ func main() {
 	}
 
 	bot, err := tgbotapi.NewBotAPI(configuration.TelegramBotToken)
-	botAnalit := botan.New(configuration.BotanApiToken)
-	var ch chan (bool) // канал для синхронизации потоков
+	// botAnalit := bot.New(configuration.BotanApiToken)
+	// var ch chan (bool) // канал для синхронизации потоков
 
 	if err != nil {
 		log.Panic(err)
@@ -161,14 +161,15 @@ func main() {
 				log.Println(command)
 				if command == "" {
 					query := update.Message.Text
-
-					message := BotanMessage{Text: update.Message.Text, ChatId: update.Message.From.ID}
-					botAnalit.TrackAsync(1,
-						message,
-						"Search", func(ans botan.Answer, err []error) {
-							fmt.Printf("Asynchonous: %+v\n", ans)
-							ch <- true // Синхронизация потоков
-						})
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+					bot.Send(msg)
+					// message := BotanMessage{Text: update.Message.Text, ChatId: update.Message.From.ID}
+					// bot.TrackAsync(1,
+					// 	message,
+					// 	"Search", func(ans botan.Answer, err []error) {
+					// 		fmt.Printf("Asynchonous: %+v\n", ans)
+					// 		ch <- true // Синхронизация потоков
+					// 	})
 
 					filteredSpells := Filter(spells.Spells, func(spell Spell) bool {
 						class, ok := classesMap[update.Message.From.ID]
@@ -231,13 +232,15 @@ func main() {
 					case "removeclass":
 						class, ok := classesMap[update.Message.From.ID]
 						if ok {
-							message := BotanMessage{Text: "", ChatId: update.Message.From.ID}
-							botAnalit.TrackAsync(1,
-								message,
-								"RemoveClass", func(ans botan.Answer, err []error) {
-									fmt.Printf("Asynchonous: %+v\n", ans)
-									ch <- true // Синхронизация потоков
-								})
+							msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+							bot.Send(msg)
+							// message := BotanMessage{Text: "", ChatId: update.Message.From.ID}
+							// botAnalit.TrackAsync(1,
+							// 	message,
+							// 	"RemoveClass", func(ans botan.Answer, err []error) {
+							// 		fmt.Printf("Asynchonous: %+v\n", ans)
+							// 		ch <- true // Синхронизация потоков
+							// 	})
 							delete(classesMap, update.Message.From.ID)
 							bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Now you're not a "+class))
 						} else {
@@ -247,13 +250,17 @@ func main() {
 				}
 			} else {
 				if update.CallbackQuery != nil {
-					message := BotanMessage{Text: update.CallbackQuery.Data, ChatId: update.CallbackQuery.Message.From.ID}
-					botAnalit.TrackAsync(1,
-						message,
-						"SetClass", func(ans botan.Answer, err []error) {
-							fmt.Printf("Asynchonous: %+v\n", ans)
-							ch <- true // Синхронизация потоков
-						})
+					msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+					bot.Send(msg)
+
+					// message := BotanMessage{Text: update.CallbackQuery.Data, ChatId: update.CallbackQuery.Message.From.ID}
+					// botAnalit.TrackAsync(1,
+					// 	message,
+					// 	"SetClass", func(ans botan.Answer, err []error) {
+					// 		fmt.Printf("Asynchonous: %+v\n", ans)
+					// 		ch <- true // Синхронизация потоков
+					// 	})
+
 					class := update.CallbackQuery.Data
 					classesMap[update.CallbackQuery.From.ID] = class
 					bot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Ok, I remember"))
