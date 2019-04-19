@@ -50,8 +50,6 @@ func main() {
 	}
 
 	bot, err := tgbotapi.NewBotAPI(configuration.TelegramBotToken)
-	// botAnalit := bot.New(configuration.BotanApiToken)
-	// var ch chan (bool) // канал для синхронизации потоков
 
 	if err != nil {
 		log.Panic(err)
@@ -159,17 +157,31 @@ func main() {
 			if update.Message != nil {
 				command = update.Message.Command()
 				log.Println(command)
+
+				// if update.Message.IsCommand() {
+				// 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
+				// 	switch update.Message.Command() {
+				// 	case "help":
+				// 		msg.Text = "type /sayhi or /status."
+				// 	case "sayhi":
+				// 		msg.Text = "Hi :)"
+				// 	case "status":
+				// 		msg.Text = "I'm ok."
+				// 	default:
+				// 		msg.Text = "I don't know that command"
+				// 	}
+				// 	bot.Send(msg)
+				// }
+
+				// msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
+				// msg.ReplyToMessageID = update.Message.MessageID
+
+				// bot.Send(msg)
+
 				if command == "" {
 					query := update.Message.Text
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 					bot.Send(msg)
-					// message := BotanMessage{Text: update.Message.Text, ChatId: update.Message.From.ID}
-					// bot.TrackAsync(1,
-					// 	message,
-					// 	"Search", func(ans botan.Answer, err []error) {
-					// 		fmt.Printf("Asynchonous: %+v\n", ans)
-					// 		ch <- true // Синхронизация потоков
-					// 	})
 
 					filteredSpells := Filter(spells.Spells, func(spell Spell) bool {
 						class, ok := classesMap[update.Message.From.ID]
@@ -234,13 +246,6 @@ func main() {
 						if ok {
 							msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 							bot.Send(msg)
-							// message := BotanMessage{Text: "", ChatId: update.Message.From.ID}
-							// botAnalit.TrackAsync(1,
-							// 	message,
-							// 	"RemoveClass", func(ans botan.Answer, err []error) {
-							// 		fmt.Printf("Asynchonous: %+v\n", ans)
-							// 		ch <- true // Синхронизация потоков
-							// 	})
 							delete(classesMap, update.Message.From.ID)
 							bot.Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Now you're not a "+class))
 						} else {
@@ -253,14 +258,6 @@ func main() {
 					msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 					bot.Send(msg)
 
-					// message := BotanMessage{Text: update.CallbackQuery.Data, ChatId: update.CallbackQuery.Message.From.ID}
-					// botAnalit.TrackAsync(1,
-					// 	message,
-					// 	"SetClass", func(ans botan.Answer, err []error) {
-					// 		fmt.Printf("Asynchonous: %+v\n", ans)
-					// 		ch <- true // Синхронизация потоков
-					// 	})
-
 					class := update.CallbackQuery.Data
 					classesMap[update.CallbackQuery.From.ID] = class
 					bot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Ok, I remember"))
@@ -269,26 +266,6 @@ func main() {
 
 		}
 	}
-
-	// if update.Message.IsCommand() {
-	// 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
-	// 	switch update.Message.Command() {
-	// 	case "help":
-	// 		msg.Text = "type /sayhi or /status."
-	// 	case "sayhi":
-	// 		msg.Text = "Hi :)"
-	// 	case "status":
-	// 		msg.Text = "I'm ok."
-	// 	default:
-	// 		msg.Text = "I don't know that command"
-	// 	}
-	// 	bot.Send(msg)
-	// }
-
-	// msg := tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-	// msg.ReplyToMessageID = update.Message.MessageID
-
-	// bot.Send(msg)
 }
 
 var classesMap map[int]string
